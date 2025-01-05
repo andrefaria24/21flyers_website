@@ -1,0 +1,1 @@
+curl https://api.cloudflare.com/client/v4/ips -H "X-Auth-Email: $CLOUDFLARE_EMAIL" -H "X-Auth-Key: $CLOUDFLARE_API_KEY" | jq -r '.result.ipv4_cidrs' > cloudflare_ip.txt

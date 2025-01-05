@@ -1,0 +1,188 @@
+<HTML>
+
+<!-- Mirrored from newlangsyne.com/doc/densalt.htm by HTTrack Website Copier/3.x [XR&CO'2010], Sat, 31 Mar 2012 22:44:51 GMT -->
+<HEAD>
+    <title> Density Altitude Computer </title>
+    <LINK href="../default.css" rel=STYLESHEET type=text/css>
+    <style>
+	input.right { text-align: right; }
+        </style>
+    </HEAD>
+
+<body>
+
+<script >
+
+lapserate = 0.0019812;  // degrees / foot std. lapse rate
+tempcorr = 273.15	// deg Kelvin
+stdtemp0 = 288.15	// deg Kelvin
+wasFeet = true;		// default: feet
+wasInches = true;	// default: inches
+wasCelsius = true;	// default: Celsius
+
+function twoplace (number)
+{
+    if (isNaN (number)) return number;
+
+    number = Math.round (100 * number);
+    var whole = Math.floor (number / 100);
+    var mods = number % 100;
+    var decimal = mods.toString();
+    if (mods < 10)  decimal = "0" + decimal;
+    return whole.toString() + "." + decimal;
+
+}
+
+function roundit (thenum)
+{
+    return Math.floor (thenum + 0.5);
+}
+
+function fixunits (units)
+{
+    with (document.densalt)
+    {
+        isFeet = altunits[0].checked;
+        isInches = setunits[0].checked;
+        isCelsius = tempunits[0].checked;
+    
+        if ("alt" == units  &&  isFeet != wasFeet)
+        {   factor = 3.28084;			// meters to feet
+	    if (!isFeet)  factor = 1. / factor;	// feet to meters
+            if (IA.value)  IA.value = roundit (factor * eval (IA.value));
+            if (PA.value)  PA.value = roundit (factor * eval (PA.value));
+            if (DA.value)  DA.value = roundit (factor * eval (DA.value));
+	    wasFeet = isFeet;
+	    IA.focus();
+        }
+        else if ("set" == units  &&  isInches != wasInches)
+        {
+	    factor = 0.02953;				// hPa to inches
+	    if (!isInches)  factor = 1. / factor;	// inches to hPa
+	    if (altstg.value)
+	        altstg.value = twoplace (factor * eval (altstg.value));
+	    wasInches = isInches;
+	    altstg.focus();
+        }
+        else if ("temp" == units  &&  isCelsius != wasCelsius)
+        {
+	    factor = isCelsius ? 5. / 9:  9. / 5;
+	    if (temp.value)
+	    {   theTemp = eval (temp.value);
+	        theTemp = twoplace ((theTemp + 40) * factor) - 40;
+		temp.value = theTemp;
+	    }
+	    wasCelsius = isCelsius;
+	    temp.focus();
+        }
+    }
+    compute();
+}
+
+function compute()
+{
+    isFeet = document.densalt.altunits[0].checked;
+    isInches = document.densalt.setunits[0].checked;
+    isCelsius = document.densalt.tempunits[0].checked;
+
+    altFactor = isFeet ? 1.: 3.28084;
+    setFactor = isInches ? 1.: 0.02953;
+
+    if (document.densalt.IA.value)
+        IA = eval (document.densalt.IA.value);
+    else IA = 0;
+    document.densalt.IA.value = IA;
+
+    if  (document.densalt.altstg.value)
+        altstg = eval (document.densalt.altstg.value);
+    else altstg = isInches ? 29.92: 1013.25;
+    document.densalt.altstg.value = altstg;
+
+    if  (document.densalt.temp.value)
+        temp = eval (document.densalt.temp.value);
+    else temp = isCelsius ? 15: 59;
+
+    document.densalt.temp.value = temp;
+
+    if (!isCelsius)
+        temp = (temp + 40) * (5 / 9) - 40;
+
+
+    xx = setFactor * altstg / 29.92126;
+    PA = IA + 145442.2 * altFactor * (1 - Math.pow (xx, 0.190261));
+    document.densalt.PA.value = roundit (PA);
+
+    stdtemp = stdtemp0 - PA * lapserate;
+
+    Tratio = stdtemp / altFactor / lapserate;
+    xx = stdtemp / (temp + tempcorr);	// for temp in deg C
+    DA = PA + Tratio * altFactor * (1 - Math.pow (xx, 0.234969));
+    document.densalt.DA.value = roundit (DA);
+}
+
+
+function clearDA ()
+{ document.densalt.DA.value = ""; }
+
+function clearPA ()
+{
+    document.densalt.PA.value = "";
+    clearDA ();
+}
+
+    </script>
+
+<b> Density Altitude Computer </b> <br>
+
+<form name=densalt >
+<table width=500 >
+    <col width=160>
+    <col width=100>
+    <col width=150>
+
+<tr><td> Altitude <td>
+<input type=text class=right size=8 name=IA tabindex=1 onblur=clearPA() >
+<td>
+<input type=radio name=altunits value=0 checked onclick='fixunits("alt")' >
+Feet &nbsp;&nbsp;
+<input type=radio name=altunits value=1 onclick='fixunits("alt")' > Meters
+
+<tr><td> Altimeter Setting <td>
+<input type=text class=right size=8 name=altstg tabindex=2 onblur=clearPA() >
+<td>
+<input type=radio name=setunits value=0 checked onclick='fixunits("set")' >
+Inches &nbsp;&nbsp;
+<input type=radio name=setunits value=1 onclick='fixunits("set")' >
+hPa
+
+<tr><td> &nbsp;&nbsp; Pressure Altitude <td>
+<input type=text class=right size=8 name=PA readonly >
+<td>
+
+<tr><td> Temperature <td>
+<input type=text class=right size=8 name=temp tabindex=3 onblur=clearDA() >
+<td>
+<input type=radio name=tempunits value=0 checked onclick='fixunits("temp")' >
+&deg;C &nbsp;&nbsp;
+<input type=radio name=tempunits value=1 onclick='fixunits("temp")' >
+&deg;F
+
+<tr><td> &nbsp;&nbsp; Density Altitude <td>
+<input type=text class=right size=8 name=DA readonly >
+<td>
+
+<tr><td colspan=2>
+<br>
+<input type=button value=Compute onclick=compute() tabindex=4 >
+<!-----------------------
+<input type=reset value=Clear tabindex=5 
+       onclick=document.densalt.IA.focus()
+>
+------------------------->
+<td>
+
+    </table>
+
+    </form>
+
+Note: standard pressure is 29.92126, if you're trying to test for zero.

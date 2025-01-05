@@ -1,0 +1,13 @@
+# Terraform
+.terraform
+*.auto.tfvars
+*.tfvars
+terraform.tfstate
+terraform.tfstate.backup
+
+# Files
+*.jpg
+*.pdf
+*.gif
+*.png
+*.doc
