@@ -15,7 +15,7 @@ jobs:
 
     steps:
     - name: Set AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v4.0.2
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
@@ -23,7 +23,7 @@ jobs:
     
     - name: Get GitHub runner IP address
       id: ip
-      uses: haythem/public-ip@v1.2
+      uses: haythem/public-ip@v1.3.0
 
     - name: Whitelist GitHub runner IP address
       run: |
@@ -34,13 +34,13 @@ jobs:
           --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4.2.2
 
     - name: Create zip file of www directory
       run: zip -r html.zip www
 
     - name: Set up SSH
-      uses: webfactory/ssh-agent@v0.5.3
+      uses: webfactory/ssh-agent@v0.9.0
       with:
         ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
@@ -68,7 +68,7 @@ jobs:
 
     - name: Create release
       id: create_release
-      uses: actions/create-release@v1
+      uses: actions/create-release@v1.1.4
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
@@ -78,7 +78,7 @@ jobs:
         prerelease: false
 
     - name: Upload release asset
-      uses: actions/upload-release-asset@v1
+      uses: actions/upload-release-asset@v1.0.2
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
