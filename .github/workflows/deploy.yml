@@ -30,6 +30,7 @@ jobs:
           sudo rm -r /usr/share/nginx/html_old/
           sudo mv /usr/share/nginx/html/ /usr/share/nginx/html_old/
           sudo unzip -o /tmp/html.zip -d /usr/share/nginx/
+          sudo mv /usr/share/nginx/www/ /usr/share/nginx/html/
           sudo rm /tmp/html.zip
           sudo systemctl restart nginx
         EOF
