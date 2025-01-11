@@ -10,8 +10,29 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      WEB_SSH_SG_ID: ${{ secrets.WEB_SSH_SG_ID }}
 
     steps:
+    - name: configure aws credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+        aws-region: us-east-2
+    
+    - name: get runner ip address
+      id: ip
+      uses: haythem/public-ip@v1.2
+
+    - name: whitelist runner ip address
+      run: |
+        aws ec2 authorize-security-group-ingress \
+          --group-id $WEB_SSH_SG_ID \
+          --protocol tcp \
+          --port 22 \
+          --cidr ${{ steps.ip.outputs.ipv4 }}/32
+
     - name: Checkout code
       uses: actions/checkout@v2
 
@@ -36,6 +57,14 @@ jobs:
           sudo rm /tmp/html.zip
           sudo systemctl restart nginx
         EOF
+
+    - name: revoke runner ip address
+      run: |
+        aws ec2 revoke-security-group-ingress \
+          --group-id $WEB_SSH_SG_ID \
+          --protocol tcp \
+          --port 22 \
+          --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
     - name: Create Release
       id: create_release
