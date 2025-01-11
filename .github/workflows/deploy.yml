@@ -73,8 +73,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
-        tag_name: 'release-$(date +%Y%m%d)'
-        release_name: 'Release $(date +%Y-%m-%d)'
+        tag_name: 'release-${{ github.sha }}'
+        release_name: 'Release ${{ github.sha }}'
         draft: false
         prerelease: false
 
