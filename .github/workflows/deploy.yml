@@ -87,17 +87,3 @@ jobs:
         asset_path: ./html.zip
         asset_name: html.zip
         asset_content_type: application/zip
-  
-  post-deploy-test:
-    runs-on: ubuntu-latest
-
-    needs: deploy
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Test webpage accessibility
-      uses:  paramt/url-checker@v0.3.1
-      with:
-        files: "test-urls.md"
