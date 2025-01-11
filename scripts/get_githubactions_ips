@@ -1,0 +1,1 @@
+curl https://api.github.com/meta | jq -r '.actions' > github_ip.txt
