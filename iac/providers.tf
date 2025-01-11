@@ -8,7 +8,7 @@ terraform {
     }
 
     vault = {
-      source = "hashicorp/vault"
+      source  = "hashicorp/vault"
       version = "4.5.0"
     }
   }
@@ -16,12 +16,12 @@ terraform {
 
 provider "vault" {
   address = var.vault_address
-  token = var.vault_token
+  token   = var.vault_token
 }
 
 data "vault_kv_secret_v2" "aws_terraform_creds" {
   mount = "kvv2"
-  name = "aws/terraform"
+  name  = "aws/terraform"
 }
 
 provider "aws" {

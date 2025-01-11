@@ -4,7 +4,7 @@ variable "home_ip" {
 }
 
 variable "vault_address" {
-  type      = string
+  type = string
 }
 
 variable "vault_token" {
