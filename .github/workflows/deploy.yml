@@ -98,23 +98,13 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Test webpage accessibility
-      run: |
-        urls=(
-          "https://www.21flyers.com/index.htm"
-          "https://www.21flyers.com/Links.html"
-          "https://www.21flyers.com/Library.htm"
-          "https://www.21flyers.com/Join.htm"
-          "https://www.21flyers.com/Announcements.htm"
-          "https://www.21flyers.com/Events.htm"
-          "https://www.21flyers.com/files/21%20Flyers%20Application.pdf"
-        )
-        for url in "${urls[@]}"; do
-          status=$(curl -o /dev/null -s -w "%{http_code}\n" "$url")
-          if [ "$status" -ne 200 ]; then
-            echo "URL $url returned status code $status" >> errors.txt
-          fi
-        done
-        if [ -f errors.txt ]; then
-          cat errors.txt
-          exit 1
-        fi
+      uses:  paramt/url-checker@v0.3.1
+      with:
+        urls: |
+          https://www.21flyers.com
+          https://21flyers.com/Links.html
+          https://21flyers.com/Library.htm
+          https://21flyers.com/Announcements.htm
+          https://21flyers.com/Events.htm
+          https://21flyers.com/Join.htm
+          https://21flyers.com/files/21%20Flyers%20Application.pdf
