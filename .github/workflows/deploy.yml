@@ -13,21 +13,23 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Create zip file
-      run: zip -r www.zip www
+    - name: Create zip file of www directory
+      run: zip -r html.zip www
 
     - name: Set up SSH
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-    - name: Copy zip file to EC2
-      run: scp -o StrictHostKeyChecking=no www.zip ec2-user@${{ secrets.EC2_PUB_IP }}:/tmp/
+    - name: Copy zip file to webserver tmp directory
+      run: scp -o StrictHostKeyChecking=no html.zip ec2-user@${{ secrets.EC2_PUB_IP }}:/tmp/
 
-    - name: Unzip and deploy files on EC2
+    - name: Unzip and deploy files within Nginx
       run: |
         ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_PUB_IP }} << 'EOF'
-          sudo unzip -o /tmp/www.zip -d /usr/share/nginx/html/
-          sudo rm /tmp/www.zip
+          sudo rm -r /usr/share/nginx/html_old/
+          sudo mv /usr/share/nginx/html/ /usr/share/nginx/html_old/
+          sudo unzip -o /tmp/html.zip -d /usr/share/nginx/
+          sudo rm /tmp/html.zip
           sudo systemctl restart nginx
         EOF
