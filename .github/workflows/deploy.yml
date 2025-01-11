@@ -23,7 +23,7 @@ jobs:
     
     - name: Get GitHub runner IP address
       id: ip
-      uses: haythem/public-ip@v1
+      uses: haythem/public-ip@v1.2
 
     - name: Whitelist GitHub runner IP address
       run: |
